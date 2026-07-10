@@ -16,6 +16,7 @@ export default function EditModulePage() {
 	const [title, setTitle] = useState("");
 	const [whopLessonId, setWhopLessonId] = useState("");
 	const [unlockRule, setUnlockRule] = useState("always");
+	const [content, setContent] = useState("");
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 
@@ -28,6 +29,7 @@ export default function EditModulePage() {
 					setTitle(mod.title || "");
 					setWhopLessonId(mod.whop_lesson_id || "");
 					setUnlockRule(mod.unlock_rule || "always");
+					setContent(mod.content || "");
 				}
 				setLoading(false);
 			})
@@ -49,6 +51,7 @@ export default function EditModulePage() {
 				title: title.trim(),
 				whop_lesson_id: whopLessonId.trim() || null,
 				unlock_rule: unlockRule,
+				content: content.trim() || null,
 			}),
 		});
 
@@ -153,6 +156,27 @@ export default function EditModulePage() {
 						<option value="previous_quiz_passed">Requires previous quiz pass</option>
 						<option value="date">Unlock on date</option>
 					</select>
+				</div>
+
+				<div className="flex flex-col gap-1.5">
+					<label className="text-sm font-semibold" style={{ color: "var(--brand-ink)" }}>
+						Lesson Content
+					</label>
+					<p className="text-xs mb-1" style={{ color: "var(--brand-ink-60)" }}>
+						Write the lesson content students will see. Use ## for headings, - for lists.
+					</p>
+					<textarea
+						value={content}
+						onChange={(e) => setContent(e.target.value)}
+						rows={10}
+						className="rounded-lg px-4 py-2.5 border text-sm outline-none focus:ring-2 transition-shadow resize-y"
+						style={{
+							borderColor: "var(--brand-ink-30)",
+							backgroundColor: "white",
+							color: "var(--brand-ink)",
+						}}
+						placeholder="Write your lesson content here...&#10;&#10;## Section Title&#10;Your lesson text goes here.&#10;&#10;- Key point one&#10;- Key point two"
+					/>
 				</div>
 
 				<div className="flex gap-3 pt-2">

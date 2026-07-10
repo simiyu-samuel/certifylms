@@ -17,7 +17,7 @@ export async function PATCH(
 		await verifyDashboardAccess(course.rows[0].whop_company_id);
 
 		const body = await request.json();
-		const { title, whop_lesson_id, order_index, unlock_rule, unlock_date } = body;
+		const { title, whop_lesson_id, order_index, unlock_rule, unlock_date, content } = body;
 
 		const result = await query(
 			`UPDATE modules SET
@@ -25,9 +25,10 @@ export async function PATCH(
         whop_lesson_id = COALESCE($2, whop_lesson_id),
         order_index = COALESCE($3, order_index),
         unlock_rule = COALESCE($4, unlock_rule),
-        unlock_date = COALESCE($5, unlock_date)
-      WHERE id = $6 RETURNING *`,
-			[title || null, whop_lesson_id, order_index, unlock_rule, unlock_date, moduleId],
+        unlock_date = COALESCE($5, unlock_date),
+        content = COALESCE($6, content)
+      WHERE id = $7 RETURNING *`,
+			[title || null, whop_lesson_id, order_index, unlock_rule, unlock_date, content, moduleId],
 		);
 		return ok(result.rows[0]);
 	} catch (e) {
