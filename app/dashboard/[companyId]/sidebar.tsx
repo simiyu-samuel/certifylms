@@ -2,14 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-	Home,
-	BookOpen,
-	Award,
-	BarChart3,
-	Settings,
-	LogOut,
-} from "lucide-react";
+import { Home, BookOpen, Award, BarChart3 } from "lucide-react";
+import { SealMark } from "@/components/seal-mark";
 
 const navItems = [
 	{ href: "", label: "Dashboard", icon: Home },
@@ -43,12 +37,7 @@ export function DashboardSidebar({
 		>
 			<div className="p-5 border-b" style={{ borderColor: "var(--brand-ink-30)" }}>
 				<Link href={`/dashboard/${companyId}`} className="flex items-center gap-2.5">
-					<div
-						className="w-8 h-8 rounded-lg flex items-center justify-center"
-						style={{ backgroundColor: "var(--brand-seal-gold)" }}
-					>
-						<span className="text-white text-sm font-bold">C</span>
-					</div>
+					<SealMark size={32} />
 					<div>
 						<span
 							className="text-base font-semibold"
@@ -68,10 +57,22 @@ export function DashboardSidebar({
 						<Link
 							key={item.href}
 							href={`/dashboard/${companyId}${item.href}`}
-							className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+							className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium nav-hover"
 							style={{
 								backgroundColor: active ? "var(--brand-chalk)" : "transparent",
 								color: active ? "var(--brand-seal-gold)" : "var(--brand-ink-60)",
+							}}
+							onMouseEnter={(e) => {
+								if (!active) {
+									e.currentTarget.style.backgroundColor = "var(--brand-chalk)";
+									e.currentTarget.style.color = "var(--brand-seal-gold)";
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (!active) {
+									e.currentTarget.style.backgroundColor = "transparent";
+									e.currentTarget.style.color = "var(--brand-ink-60)";
+								}
 							}}
 						>
 							<Icon size={18} />

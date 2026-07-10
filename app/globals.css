@@ -23,3 +23,20 @@ body {
 	background: var(--background);
 	color: var(--foreground);
 }
+
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(8px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-hover {
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+	box-shadow: 0 4px 20px rgba(20, 21, 43, 0.06);
+	transform: translateY(-1px);
+}
+
+.nav-hover {
+	transition: background-color 0.15s ease, color 0.15s ease;
+}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { whopsdk } from "@/lib/whop-sdk";
 import { query } from "@/lib/db";
 import { BookOpen, Award, TrendingUp, Users } from "lucide-react";
+import { SealMark } from "@/components/seal-mark";
 
 export default async function DashboardPage({
 	params,
@@ -56,22 +57,25 @@ export default async function DashboardPage({
 	];
 
 	return (
-		<div className="flex flex-col p-8 gap-8 max-w-5xl">
+		<div className="flex flex-col p-8 gap-8 max-w-5xl" style={{ animation: "fadeInUp 0.35s ease" }}>
 			<div className="flex items-center justify-between">
-				<div>
-					<h1
-						className="text-3xl font-semibold"
-						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
-					>
-						Dashboard
-					</h1>
-					<p className="text-sm mt-1" style={{ color: "var(--brand-ink-60)" }}>
-						Overview of your learning programs
-					</p>
+				<div className="flex items-center gap-4">
+					<SealMark size={40} />
+					<div>
+						<h1
+							className="text-3xl font-semibold"
+							style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
+						>
+							Dashboard
+						</h1>
+						<p className="text-sm mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
+							Overview of your learning programs
+						</p>
+					</div>
 				</div>
 				<Link
 					href={`/dashboard/${companyId}/courses/new`}
-					className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+					className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md"
 					style={{ backgroundColor: "var(--brand-seal-gold)" }}
 				>
 					<BookOpen size={16} />
@@ -80,15 +84,16 @@ export default async function DashboardPage({
 			</div>
 
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-				{stats.map((stat) => {
+				{stats.map((stat, i) => {
 					const Icon = stat.icon;
 					return (
 						<div
 							key={stat.label}
-							className="rounded-xl p-5 border flex flex-col gap-2"
+							className="rounded-xl p-5 border flex flex-col gap-2 card-hover"
 							style={{
 								backgroundColor: "white",
 								borderColor: "var(--brand-ink-30)",
+								animation: `fadeInUp 0.35s ease ${i * 0.06}s both`,
 							}}
 						>
 							<div className="flex items-center justify-between">
@@ -121,7 +126,7 @@ export default async function DashboardPage({
 					</h2>
 					<Link
 						href={`/dashboard/${companyId}/courses`}
-						className="text-sm font-medium"
+						className="text-sm font-medium transition-colors hover:underline"
 						style={{ color: "var(--brand-seal-gold)" }}
 					>
 						View all
@@ -130,23 +135,25 @@ export default async function DashboardPage({
 
 				{courses.rows.length === 0 ? (
 					<div
-						className="rounded-xl p-10 border text-center"
-						style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
+						className="rounded-xl p-12 border text-center"
+						style={{
+							backgroundColor: "white",
+							borderColor: "var(--brand-ink-30)",
+							animation: "fadeInUp 0.35s ease 0.15s both",
+						}}
 					>
-						<BookOpen
-							size={40}
-							className="mx-auto mb-4"
-							style={{ color: "var(--brand-ink-30)" }}
-						/>
-						<p className="text-sm font-medium" style={{ color: "var(--brand-ink)" }}>
+						<div className="mb-4 flex justify-center">
+							<SealMark size={48} />
+						</div>
+						<p className="text-base font-semibold" style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}>
 							No courses yet
 						</p>
-						<p className="text-xs mt-1" style={{ color: "var(--brand-ink-60)" }}>
+						<p className="text-sm mt-1" style={{ color: "var(--brand-ink-60)" }}>
 							Create your first course to start building quizzes and certificates.
 						</p>
 						<Link
 							href={`/dashboard/${companyId}/courses/new`}
-							className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg text-sm font-medium text-white"
+							className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md"
 							style={{ backgroundColor: "var(--brand-seal-gold)" }}
 						>
 							Create Course
@@ -154,14 +161,15 @@ export default async function DashboardPage({
 					</div>
 				) : (
 					<div className="grid md:grid-cols-2 gap-4">
-						{courses.rows.map((course) => (
+						{courses.rows.map((course, i) => (
 							<Link
 								key={course.id}
 								href={`/dashboard/${companyId}/courses/${course.id}`}
-								className="rounded-xl p-5 border hover:shadow-sm transition-shadow"
+								className="rounded-xl p-5 border card-hover"
 								style={{
 									backgroundColor: "white",
 									borderColor: "var(--brand-ink-30)",
+									animation: `fadeInUp 0.35s ease ${0.2 + i * 0.06}s both`,
 								}}
 							>
 								<h3
