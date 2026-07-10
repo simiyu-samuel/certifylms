@@ -12,6 +12,8 @@ import {
 	HelpCircle,
 	BarChart3,
 	BookOpen,
+	ChevronRight,
+	ArrowRight,
 } from "lucide-react";
 import { ExperienceQuizCard } from "./quiz-card";
 import { ModuleCompleteButton } from "./module-complete";
@@ -130,118 +132,185 @@ export default async function ExperiencePage({
 	const passedQuizzes = [...bestAttemptMap.values()].filter((a) => a.passed).length;
 	const totalQuizzes = quizIds.length;
 
+	const firstUnlocked = modules.rows.find((m: { id: string; unlock_rule: string }) => {
+		const prog = progressMap.get(m.id) || (m.unlock_rule === "always" ? "unlocked" : "locked");
+		return prog === "unlocked";
+	});
+
+	const justStarted = completedModules === 0 && !firstUnlocked;
+
 	return (
 		<div className="flex flex-col min-h-screen" style={{ backgroundColor: "var(--brand-chalk)" }}>
-			{/* Header */}
+			{/* Simple top bar */}
 			<header
-				className="border-b px-6 py-4 flex items-center gap-3"
+				className="border-b px-6 py-3 flex items-center gap-2"
 				style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
 			>
-				<Image src="/seal-mark-icon-dark.svg" alt="" width={28} height={28} />
-				<div className="flex-1">
-					<h1
-						className="text-lg font-semibold"
-						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
-					>
-						{course.title}
-					</h1>
-					<p className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
-						{displayName}
-					</p>
-				</div>
-				{course.description && (
-					<p className="text-xs max-w-xs text-right" style={{ color: "var(--brand-ink-60)" }}>
-						{course.description}
-					</p>
-				)}
+				<Image src="/seal-mark-icon-dark.svg" alt="" width={20} height={20} />
+				<span className="text-xs font-medium ml-1" style={{ color: "var(--brand-ink-60)" }}>
+					CertifyLMS
+				</span>
+				<span className="text-xs" style={{ color: "var(--brand-ink-30)" }}>/</span>
+				<span className="text-xs font-semibold truncate" style={{ color: "var(--brand-ink)" }}>
+					{course.title}
+				</span>
+				<div className="flex-1" />
+				<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
+					{displayName}
+				</span>
 			</header>
 
-			{/* Progress + Stats */}
-			<div className="border-b px-6 py-5" style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}>
+			{/* Hero section */}
+			<div
+				className="px-6 py-10 border-b"
+				style={{
+					backgroundColor: "white",
+					borderColor: "var(--brand-ink-30)",
+				}}
+			>
 				<div className="max-w-3xl mx-auto">
-					<div className="flex items-center justify-between mb-2">
-						<span className="text-xs font-medium" style={{ color: "var(--brand-ink-60)" }}>
-							Course Progress
-						</span>
-						<span
-							className="text-xs font-mono font-medium"
-							style={{ color: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)" }}
-						>
-							{completedModules}/{totalModules} modules
-						</span>
-					</div>
-					<div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--brand-chalk)" }}>
+					<div className="flex items-start gap-5">
 						<div
-							className="h-full rounded-full transition-all duration-500"
-							style={{
-								width: `${progressPct}%`,
-								backgroundColor: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)",
-							}}
-						/>
-					</div>
-
-					<div className="grid grid-cols-3 gap-4 mt-5">
-						<div className="flex items-center gap-2.5">
-							<div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)" }}>
-								<BookOpen size={16} style={{ color: "var(--brand-seal-gold)" }} />
-							</div>
-							<div>
-								<div className="text-lg font-bold" style={{ color: "var(--brand-ink)", fontFamily: "var(--font-ibm-plex-mono)" }}>
-									{completedModules}
-								</div>
-								<div className="text-[10px] font-medium" style={{ color: "var(--brand-ink-60)" }}>
-									Modules done
-								</div>
-							</div>
+							className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+							style={{ backgroundColor: "rgba(199, 154, 59, 0.12)" }}
+						>
+							<BookOpen size={28} style={{ color: "var(--brand-seal-gold)" }} />
 						</div>
-						<div className="flex items-center gap-2.5">
-							<div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)" }}>
-								<HelpCircle size={16} style={{ color: "var(--brand-seal-gold)" }} />
-							</div>
-							<div>
-								<div className="text-lg font-bold" style={{ color: "var(--brand-ink)", fontFamily: "var(--font-ibm-plex-mono)" }}>
-									{passedQuizzes}/{totalQuizzes}
-								</div>
-								<div className="text-[10px] font-medium" style={{ color: "var(--brand-ink-60)" }}>
-									Quizzes passed
-								</div>
-							</div>
-						</div>
-						<div className="flex items-center gap-2.5">
-							<div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)" }}>
-								<BarChart3 size={16} style={{ color: "var(--brand-seal-gold)" }} />
-							</div>
-							<div>
-								<div className="text-lg font-bold" style={{ color: "var(--brand-ink)", fontFamily: "var(--font-ibm-plex-mono)" }}>
-									{progressPct}%
-								</div>
-								<div className="text-[10px] font-medium" style={{ color: "var(--brand-ink-60)" }}>
-									Complete
-								</div>
+						<div className="flex-1 min-w-0">
+							<h1
+								className="text-2xl font-bold mb-1.5"
+								style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
+							>
+								{course.title}
+							</h1>
+							{course.description && (
+								<p className="text-sm leading-relaxed" style={{ color: "var(--brand-ink-60)" }}>
+									{course.description}
+								</p>
+							)}
+							<div className="flex items-center gap-4 mt-3">
+								<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
+									{totalModules} module{totalModules !== 1 ? "s" : ""}
+								</span>
+								{totalQuizzes > 0 && (
+									<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
+										{totalQuizzes} quiz{totalQuizzes !== 1 ? "zes" : ""}
+									</span>
+								)}
+								{progressPct > 0 && (
+									<span
+										className="text-xs font-medium"
+										style={{ color: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)" }}
+									>
+										{progressPct}% complete
+									</span>
+								)}
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
+			{/* Progress bar + stats */}
+			{completedModules > 0 || progressPct > 0 ? (
+				<div
+					className="border-b px-6 py-4"
+					style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
+				>
+					<div className="max-w-3xl mx-auto">
+						<div className="flex items-center justify-between mb-2">
+							<span className="text-xs font-medium" style={{ color: "var(--brand-ink-60)" }}>
+								Progress
+							</span>
+							<span
+								className="text-xs font-mono font-medium"
+								style={{ color: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)" }}
+							>
+								{completedModules}/{totalModules}
+							</span>
+						</div>
+						<div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--brand-chalk)" }}>
+							<div
+								className="h-full rounded-full transition-all duration-500"
+								style={{
+									width: `${progressPct}%`,
+									backgroundColor: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)",
+								}}
+							/>
+						</div>
+						<div className="flex items-center gap-6 mt-3">
+							<div className="flex items-center gap-2">
+								<CheckCircle2 size={14} style={{ color: "var(--brand-verified-green)" }} />
+								<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
+									{completedModules} module{completedModules !== 1 ? "s" : ""} done
+								</span>
+							</div>
+							{totalQuizzes > 0 && (
+								<div className="flex items-center gap-2">
+									<HelpCircle size={14} style={{ color: "var(--brand-seal-gold)" }} />
+									<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
+										{passedQuizzes}/{totalQuizzes} passed
+									</span>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+			) : null}
+
 			{/* Modules */}
 			<main className="flex-1 p-6 max-w-3xl mx-auto w-full">
-				<div className="flex items-center gap-3 mb-6">
-					<h2
-						className="text-xl font-semibold"
-						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
+				{justStarted && modules.rows.length > 0 && (
+					<div
+						className="rounded-xl p-6 border mb-6 flex items-center justify-between"
+						style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
 					>
-						Course Modules
-					</h2>
-					<span
-						className="text-xs font-mono px-2 py-0.5 rounded-full"
-						style={{ backgroundColor: "var(--brand-chalk)", color: "var(--brand-ink-60)" }}
-					>
-						{totalModules} module{totalModules !== 1 ? "s" : ""}
-					</span>
-				</div>
+						<div className="flex items-center gap-3">
+							<div
+								className="w-10 h-10 rounded-full flex items-center justify-center"
+								style={{ backgroundColor: "rgba(199, 154, 59, 0.12)" }}
+							>
+								<Play size={18} style={{ color: "var(--brand-seal-gold)" }} />
+							</div>
+							<div>
+								<p className="text-sm font-semibold" style={{ color: "var(--brand-ink)" }}>
+									Start learning
+								</p>
+								<p className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
+									Begin with module 1 and work your way through the course.
+								</p>
+							</div>
+						</div>
+						<Link
+							href={`/experiences/${experienceId}/module/${modules.rows[0].id}`}
+							className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-md"
+							style={{ backgroundColor: "var(--brand-seal-gold)" }}
+						>
+							Start
+							<ArrowRight size={16} />
+						</Link>
+					</div>
+				)}
 
-				<div className="space-y-4">
+				{completedModules === totalModules && totalModules > 0 && (
+					<div
+						className="rounded-xl p-6 border mb-6 text-center"
+						style={{
+							backgroundColor: "rgba(47, 158, 104, 0.06)",
+							borderColor: "rgba(47, 158, 104, 0.2)",
+						}}
+					>
+						<CheckCircle2 size={36} className="mx-auto mb-2" style={{ color: "var(--brand-verified-green)" }} />
+						<h2 className="text-lg font-bold mb-1" style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-verified-green)" }}>
+							Course Complete!
+						</h2>
+						<p className="text-sm" style={{ color: "var(--brand-ink-60)" }}>
+							You have completed all modules. Great work!
+						</p>
+					</div>
+				)}
+
+				<div className="space-y-3">
 					{modules.rows.map((mod: typeof modules.rows[0], i: number) => {
 						const UnlockIcon = unlockIcons[mod.unlock_rule as keyof typeof unlockIcons] || Lock;
 						const progress = progressMap.get(mod.id) || (mod.unlock_rule === "always" ? "unlocked" : "locked");
@@ -250,21 +319,30 @@ export default async function ExperiencePage({
 						const bestAttempt = quiz ? bestAttemptMap.get(quiz.id) : undefined;
 						const attemptCount = quiz ? attemptCountMap.get(quiz.id) || 0 : 0;
 						const isLocked = progress === "locked";
+						const hasContent = !!mod.content;
+						const isCurrent = !isLocked && progress === "unlocked" && !bestAttempt?.passed;
 
 						return (
 							<div
 								key={mod.id}
-								className="rounded-xl border overflow-hidden"
+								className="rounded-xl border overflow-hidden transition-all card-hover"
 								style={{
 									backgroundColor: "white",
-									borderColor: "var(--brand-ink-30)",
-									opacity: isLocked ? 0.5 : 1,
+									borderColor: isCurrent ? "var(--brand-seal-gold)" : "var(--brand-ink-30)",
+									opacity: isLocked ? 0.45 : 1,
+									boxShadow: isCurrent ? "0 0 0 1px var(--brand-seal-gold)" : "none",
 								}}
 							>
-								<div className="p-5">
-									<div className="flex items-start gap-3">
+								<Link
+									href={isLocked ? "#" : `/experiences/${experienceId}/module/${mod.id}`}
+									className={`block p-4 ${isLocked ? "cursor-default" : ""}`}
+									onClick={(e) => {
+										if (isLocked) e.preventDefault();
+									}}
+								>
+									<div className="flex items-center gap-3">
 										<div
-											className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+											className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
 											style={{
 												backgroundColor:
 													progress === "completed"
@@ -280,78 +358,64 @@ export default async function ExperiencePage({
 												<UnlockIcon size={18} className="text-white" />
 											)}
 										</div>
+
 										<div className="flex-1 min-w-0">
-											<div className="flex items-center gap-2 mb-0.5">
-												<span
-													className="text-xs font-mono"
-													style={{ color: "var(--brand-ink-60)" }}
-												>
-													{i + 1}.
+											<div className="flex items-center gap-2">
+												<span className="text-xs font-mono font-medium" style={{ color: "var(--brand-ink-30)" }}>
+													{i + 1}
 												</span>
-												<Link
-													href={`/experiences/${experienceId}/module/${mod.id}`}
-													className="font-semibold truncate hover:underline"
-													style={{ color: "var(--brand-ink)" }}
-												>
+												<span className="text-sm font-semibold truncate" style={{ color: "var(--brand-ink)" }}>
 													{mod.title}
-												</Link>
-												{mod.unlock_rule === "previous_quiz_passed" && !isLocked && (
-													<span
-														className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-														style={{
-															backgroundColor: "var(--brand-chalk)",
-															color: "var(--brand-seal-gold)",
-														}}
-													>
-														gated
+												</span>
+												{isCurrent && (
+													<span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)", color: "var(--brand-seal-gold)" }}>
+														current
 													</span>
 												)}
 												{progress === "completed" && (
-													<span
-														className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-														style={{
-															backgroundColor: "rgba(47, 158, 104, 0.1)",
-															color: "var(--brand-verified-green)",
-														}}
-													>
+													<span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: "rgba(47, 158, 104, 0.1)", color: "var(--brand-verified-green)" }}>
 														done
 													</span>
 												)}
-												{progress === "unlocked" && (
-													<span
-														className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-														style={{
-															backgroundColor: "rgba(199, 154, 59, 0.1)",
-															color: "var(--brand-seal-gold)",
-														}}
-													>
-														in progress
-													</span>
-												)}
 												{isLocked && (
-													<span
-														className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-														style={{
-															backgroundColor: "var(--brand-chalk)",
-															color: "var(--brand-ink-60)",
-														}}
-													>
+													<span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: "var(--brand-chalk)", color: "var(--brand-ink-60)" }}>
 														locked
 													</span>
 												)}
 											</div>
-											{mod.unlock_rule === "date" && mod.unlock_date && (
-												<p className="text-xs mt-1" style={{ color: "var(--brand-ink-60)" }}>
-													Unlocks {new Date(mod.unlock_date).toLocaleDateString()}
-												</p>
+
+											{!isLocked && (
+												<div className="flex items-center gap-3 mt-1.5">
+													{hasContent && (
+														<span className="text-xs flex items-center gap-1" style={{ color: "var(--brand-ink-60)" }}>
+															<BookOpen size={12} />
+															Lesson
+														</span>
+													)}
+													{quiz && (
+														<span className="text-xs flex items-center gap-1" style={{ color: "var(--brand-ink-60)" }}>
+															<HelpCircle size={12} />
+															{qCount} question{qCount !== 1 ? "s" : ""}
+														</span>
+													)}
+													{mod.unlock_rule === "previous_quiz_passed" && !isLocked && (
+														<span className="text-xs font-medium" style={{ color: "var(--brand-seal-gold)" }}>
+															Gated — requires previous quiz
+														</span>
+													)}
+												</div>
 											)}
 										</div>
+
+										{!isLocked && (
+											<ChevronRight size={16} style={{ color: "var(--brand-ink-30)", flexShrink: 0 }} />
+										)}
 									</div>
-								</div>
+								</Link>
 
 								{quiz && !isLocked && (
 									<div
-										className="border-t px-5 py-3"
+										className="border-t px-4 py-3"
 										style={{ borderColor: "var(--brand-ink-30)" }}
 									>
 										<ExperienceQuizCard
@@ -366,7 +430,7 @@ export default async function ExperiencePage({
 
 								{!quiz && !isLocked && progress !== "completed" && (
 									<div
-										className="border-t px-5 py-3 flex items-center justify-end"
+										className="border-t px-4 py-3 flex items-center justify-end"
 										style={{ borderColor: "var(--brand-ink-30)" }}
 									>
 										<ModuleCompleteButton
@@ -380,6 +444,19 @@ export default async function ExperiencePage({
 						);
 					})}
 				</div>
+
+				{/* Course complete footer */}
+				{completedModules === totalModules && totalModules > 0 && (
+					<div className="text-center mt-8 mb-4">
+						<div
+							className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90"
+							style={{ backgroundColor: "var(--brand-verified-green)" }}
+						>
+							<CheckCircle2 size={18} />
+							Certificate available
+						</div>
+					</div>
+				)}
 			</main>
 		</div>
 	);
