@@ -1,0 +1,47 @@
+@layer theme, base, frosted_ui, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@whop/react/styles.css" layer(frosted_ui);
+
+/* biome-ignore lint/suspicious/noUnknownAtRules: this rule is imported from whop */
+@config '../tailwind.config.ts';
+
+:root {
+	--brand-ink: #14152B;
+	--brand-ink-60: #4A4B63;
+	--brand-ink-30: #C7C8D6;
+	--brand-chalk: #F3F4F8;
+	--brand-seal-gold: #C79A3B;
+	--brand-gold-dim: #8A6B28;
+	--brand-verified-green: #2F9E68;
+	--brand-brick: #B5533F;
+}
+
+body {
+	background: var(--background);
+	color: var(--foreground);
+}
+
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(8px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-hover {
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+	box-shadow: 0 4px 20px rgba(20, 21, 43, 0.06);
+	transform: translateY(-1px);
+}
+
+.nav-hover {
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover {
+	background-color: var(--brand-chalk) !important;
+	color: var(--brand-seal-gold) !important;
+}
