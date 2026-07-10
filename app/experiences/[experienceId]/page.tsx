@@ -288,12 +288,13 @@ export default async function ExperiencePage({
 												>
 													{i + 1}.
 												</span>
-												<h3
-													className="font-semibold truncate"
+												<Link
+													href={`/experiences/${experienceId}/module/${mod.id}`}
+													className="font-semibold truncate hover:underline"
 													style={{ color: "var(--brand-ink)" }}
 												>
 													{mod.title}
-												</h3>
+												</Link>
 												{mod.unlock_rule === "previous_quiz_passed" && !isLocked && (
 													<span
 														className="text-[10px] px-1.5 py-0.5 rounded font-medium"

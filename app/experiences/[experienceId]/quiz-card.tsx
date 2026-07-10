@@ -88,18 +88,28 @@ export function ExperienceQuizCard({
 					</div>
 				</div>
 			</div>
-			<Link
-				href={`/experiences/${experienceId}/quiz/${quiz.id}`}
-				className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 ${
-					canTake ? "hover:opacity-90 hover:shadow-md" : "pointer-events-none"
-				}`}
-				style={{
-					backgroundColor: canTake ? "var(--brand-seal-gold)" : "var(--brand-ink-30)",
-					color: "white",
-				}}
-			>
-				{bestAttempt?.passed ? "Review" : canTake ? "Take Quiz" : "No attempts left"}
-			</Link>
+			{bestAttempt?.passed ? (
+				<Link
+					href={`/experiences/${experienceId}/quiz/${quiz.id}/review`}
+					className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:shadow-md flex-shrink-0"
+					style={{ backgroundColor: "var(--brand-verified-green)", color: "white" }}
+				>
+					Review
+				</Link>
+			) : (
+				<Link
+					href={`/experiences/${experienceId}/quiz/${quiz.id}`}
+					className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 ${
+						canTake ? "hover:opacity-90 hover:shadow-md" : "pointer-events-none"
+					}`}
+					style={{
+						backgroundColor: canTake ? "var(--brand-seal-gold)" : "var(--brand-ink-30)",
+						color: "white",
+					}}
+				>
+					{canTake ? "Take Quiz" : "No attempts left"}
+				</Link>
+			)}
 		</div>
 	);
 }
