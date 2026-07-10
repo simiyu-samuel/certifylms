@@ -40,3 +40,8 @@ body {
 .nav-hover {
 	transition: background-color 0.15s ease, color 0.15s ease;
 }
+
+.sidebar-link:hover {
+	background-color: var(--brand-chalk) !important;
+	color: var(--brand-seal-gold) !important;
+}

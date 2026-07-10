@@ -3,7 +3,7 @@ import Link from "next/link";
 import { whopsdk } from "@/lib/whop-sdk";
 import { query } from "@/lib/db";
 import { BookOpen, Award, TrendingUp, Users } from "lucide-react";
-import { SealMark } from "@/components/seal-mark";
+import Image from "next/image";
 
 export default async function DashboardPage({
 	params,
@@ -60,7 +60,7 @@ export default async function DashboardPage({
 		<div className="flex flex-col p-8 gap-8 max-w-5xl" style={{ animation: "fadeInUp 0.35s ease" }}>
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-4">
-					<SealMark size={40} />
+					<Image src="/wordmark-light-bg.svg" alt="CertifyLMS" width={180} height={52} priority />
 					<div>
 						<h1
 							className="text-3xl font-semibold"
@@ -143,7 +143,7 @@ export default async function DashboardPage({
 						}}
 					>
 						<div className="mb-4 flex justify-center">
-							<SealMark size={48} />
+							<Image src="/seal-mark-icon-dark.svg" alt="" width={48} height={48} />
 						</div>
 						<p className="text-base font-semibold" style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}>
 							No courses yet
