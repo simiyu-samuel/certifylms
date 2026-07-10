@@ -59,6 +59,62 @@ CertifyLMS provides a full learning management layer on top of Whop's existing c
 
 ---
 
+## Brand & Identity
+
+### Concept: The Seal
+
+The brand is built around one signature image: a fine-reeded ring with a bold, slightly rotated checkmark at its center — as if physically stamped down. That small imperfection is intentional: it reads as *earned* rather than generated. The seal appears as the app icon, on every issued certificate, and as a locked/unlocked state indicator in course progress.
+
+### Color Palette
+
+| Name | Hex | Role |
+|------|-----|------|
+| **Ink** | `#14152B` | Primary dark background |
+| **Ink 60** | `#4A4B63` | Secondary text / captions |
+| **Ink 30** | `#C7C8D6` | Hairlines, dividers, disabled states |
+| **Chalk** | `#F3F4F8` | Primary light background |
+| **Seal Gold** | `#C79A3B` | Signature accent — certification, achievement |
+| **Gold Dim** | `#8A6B28` | Depth/shadow variant of Seal Gold |
+| **Verified Green** | `#2F9E68` | Pass / complete state |
+| **Brick** | `#B5533F` | Fail / at-risk state |
+
+Gold is ceremonial — reserved for the seal, certificates, and achievement badges only. Never used on generic buttons or navigation.
+
+### Typography
+
+| Role | Typeface | Used For |
+|------|----------|----------|
+| **Display** | Fraunces (variable 400–700) | Certificate headlines, course titles, wordmark |
+| **Body / UI** | Inter (variable 400–700) | All in-app UI text, dashboard, gradebook |
+| **Utility / Data** | IBM Plex Mono | Verification codes, scores, dates, timestamps |
+
+All three are SIL-licensed and available via `next/font` — no licensing cost.
+
+### Voice & Tone
+
+- Plain verbs, no filler: "Issue certificate" not "Generate your credential now"
+- State outcomes, not mechanics: "You passed — next module unlocked" not "Threshold evaluation successful"
+- Errors explain, don't apologize: "This verification code doesn't match any certificate" not "Oops!"
+- Certificates speak formally; the app speaks plainly
+
+### Wordmark
+
+Seal mark + **"Certify."** in Fraunces SemiBold + **"LEARNING MANAGEMENT"** in Inter SemiBold underneath. Minimum width 120px; below that, use the seal mark alone.
+
+---
+
+## Brand Assets
+
+The repo includes branded assets under `certifylms-brand-assets.zip`:
+
+- `icons/` — App icons (dark/light), favicon (multi-resolution)
+- `logo/` — Wordmark lockups (dark/light bg), seal mark SVG, favicon SVG
+- `images/` — App Store banner, certificate template (PNG + editable SVG)
+
+The editable certificate SVG is the visual base for the live PDF generation once built.
+
+---
+
 ## Tech Stack
 
 - **Framework:** Next.js (App Router)
