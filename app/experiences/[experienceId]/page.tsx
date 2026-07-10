@@ -335,10 +335,9 @@ export default async function ExperiencePage({
 							>
 								<Link
 									href={isLocked ? "#" : `/experiences/${experienceId}/module/${mod.id}`}
-									className={`block p-4 ${isLocked ? "cursor-default" : ""}`}
-									onClick={(e) => {
-										if (isLocked) e.preventDefault();
-									}}
+									className={`block p-4 ${isLocked ? "pointer-events-none" : ""}`}
+									aria-disabled={isLocked}
+									tabIndex={isLocked ? -1 : undefined}
 								>
 									<div className="flex items-center gap-3">
 										<div
