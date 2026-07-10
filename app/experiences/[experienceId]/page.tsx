@@ -20,7 +20,7 @@ const unlockIcons = {
 
 async function getCourseForExperience(experienceId: string) {
 	const experience = await whopsdk.experiences.retrieve(experienceId);
-	const companyId = (experience as unknown as { company_id: string }).company_id;
+	const companyId = (experience as unknown as { company: { id: string } }).company.id;
 	const courses = await query(
 		"SELECT id, title, description, created_at FROM courses WHERE whop_company_id = $1 ORDER BY created_at DESC LIMIT 1",
 		[companyId],
