@@ -4,33 +4,41 @@ import Image from "next/image";
 import { whopsdk } from "@/lib/whop-sdk";
 import {
 	BookOpen,
-	Lock,
-	AlertCircle,
 	ChevronRight,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default async function ExperiencesPage() {
+export default async function ExperiencesPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ company?: string }>;
+}) {
 	const { userId } = await whopsdk.verifyUserToken(await headers());
 	const user = await whopsdk.users.retrieve(userId);
 	const displayName = user.name || `@${user.username}`;
+	const { company: companyParam } = await searchParams;
 
 	let experiences: { id: string; name: string; image: { url: string | null } | null; company: { id: string; title: string } }[] = [];
 
-	try {
-		const membershipsPage = await whopsdk.memberships.list({ user_ids: [userId] });
-		const companyIds = [...new Set(membershipsPage.data.map((m: { company: { id: string } }) => m.company.id))];
-
-		for (const companyId of companyIds) {
-			for await (const exp of whopsdk.experiences.list({ company_id: companyId })) {
-				if (!experiences.find((e) => e.id === exp.id)) {
-					experiences.push(exp);
+	if (companyParam) {
+		for await (const exp of whopsdk.experiences.list({ company_id: companyParam })) {
+			experiences.push(exp);
+		}
+	} else {
+		try {
+			const membershipsPage = await whopsdk.memberships.list({ user_ids: [userId] });
+			const companyIds = [...new Set(membershipsPage.data.map((m: { company: { id: string } }) => m.company.id))];
+			for (const companyId of companyIds) {
+				for await (const exp of whopsdk.experiences.list({ company_id: companyId })) {
+					if (!experiences.find((e) => e.id === exp.id)) {
+						experiences.push(exp);
+					}
 				}
 			}
+		} catch {
+			// memberships API may lack permissions — empty list
 		}
-	} catch {
-		// fallback — show nothing
 	}
 
 	return (

@@ -155,7 +155,7 @@ export default async function ExperiencePage({
 				style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
 			>
 				<Image src="/seal-mark-icon-dark.svg" alt="" width={20} height={20} />
-				<Link href="/experiences" className="text-xs font-medium ml-1 hover:opacity-70 transition-opacity" style={{ color: "var(--brand-ink-60)" }}>
+				<Link href={`/experiences?company=${companyId}`} className="text-xs font-medium ml-1 hover:opacity-70 transition-opacity" style={{ color: "var(--brand-ink-60)" }}>
 					CertifyLMS
 				</Link>
 				<span className="text-xs" style={{ color: "var(--brand-ink-30)" }}>/</span>
