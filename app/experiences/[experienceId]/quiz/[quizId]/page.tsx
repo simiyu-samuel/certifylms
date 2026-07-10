@@ -390,20 +390,24 @@ export default function QuizPage({
 							const labels = opts || { true: "True", false: "False" };
 							return (
 								<div className="grid grid-cols-2 gap-3">
-									{["true", "false"].map((val) => (
-										<button
-											key={val}
-											onClick={() => handleAnswer(current.id, val)}
-											className="px-4 py-3 rounded-lg text-sm border transition-all"
-											style={{
-												backgroundColor: selected === val ? "rgba(199, 154, 59, 0.08)" : "white",
-												borderColor: selected === val ? "var(--brand-seal-gold)" : "var(--brand-ink-30)",
-												color: selected === val ? "var(--brand-seal-gold)" : "var(--brand-ink)",
-											}}
-										>
-											{labels[val as keyof typeof labels]}
-										</button>
-									))}
+									{["true", "false"].map((val) => {
+										const isSelected = selected === val;
+										return (
+											<button
+												key={val}
+												onClick={() => handleAnswer(current.id, val)}
+												className="px-4 py-4 rounded-lg text-sm font-semibold border-2 transition-all"
+												style={{
+													backgroundColor: isSelected ? "var(--brand-seal-gold)" : "white",
+													borderColor: isSelected ? "var(--brand-seal-gold)" : "var(--brand-ink-30)",
+													color: isSelected ? "white" : "var(--brand-ink)",
+													boxShadow: isSelected ? "0 2px 8px rgba(199, 154, 59, 0.3)" : "none",
+												}}
+											>
+												{isSelected ? "✓ " : ""}{labels[val as keyof typeof labels]}
+											</button>
+										);
+									})}
 								</div>
 							);
 						})()}

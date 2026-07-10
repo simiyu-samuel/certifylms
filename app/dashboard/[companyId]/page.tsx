@@ -3,7 +3,6 @@ import Link from "next/link";
 import { whopsdk } from "@/lib/whop-sdk";
 import { query } from "@/lib/db";
 import { BookOpen, Award, TrendingUp, Users } from "lucide-react";
-import Image from "next/image";
 
 export default async function DashboardPage({
 	params,
@@ -59,19 +58,16 @@ export default async function DashboardPage({
 	return (
 		<div className="flex flex-col p-8 gap-8 max-w-5xl" style={{ animation: "fadeInUp 0.35s ease" }}>
 			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
-					<Image src="/wordmark-light-bg.svg" alt="CertifyLMS" width={180} height={52} priority />
-					<div>
-						<h1
-							className="text-3xl font-semibold"
-							style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
-						>
-							Dashboard
-						</h1>
-						<p className="text-sm mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
-							Overview of your learning programs
-						</p>
-					</div>
+				<div>
+					<h1
+						className="text-3xl font-semibold"
+						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
+					>
+						Dashboard
+					</h1>
+					<p className="text-sm mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
+						Overview of your learning programs
+					</p>
 				</div>
 				<Link
 					href={`/dashboard/${companyId}/courses/new`}
@@ -143,7 +139,12 @@ export default async function DashboardPage({
 						}}
 					>
 						<div className="mb-4 flex justify-center">
-							<Image src="/seal-mark-icon-dark.svg" alt="" width={48} height={48} />
+							<div
+								className="w-12 h-12 rounded-xl flex items-center justify-center"
+								style={{ backgroundColor: "var(--brand-chalk)" }}
+							>
+								<BookOpen size={24} style={{ color: "var(--brand-ink-30)" }} />
+							</div>
 						</div>
 						<p className="text-base font-semibold" style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}>
 							No courses yet

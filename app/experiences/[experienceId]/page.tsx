@@ -9,8 +9,12 @@ import {
 	Play,
 	FileText,
 	AlertCircle,
+	HelpCircle,
+	BarChart3,
+	BookOpen,
 } from "lucide-react";
 import { ExperienceQuizCard } from "./quiz-card";
+import { ModuleCompleteButton } from "./module-complete";
 
 const unlockIcons = {
 	always: Play,
@@ -117,6 +121,15 @@ export default async function ExperiencePage({
 		attemptCountMap.set(qid, attempts.length);
 	}
 
+	const totalModules = modules.rows.length;
+	const completedModules = modules.rows.filter((m: { id: string; unlock_rule: string }) => {
+		const prog = progressMap.get(m.id) || (m.unlock_rule === "always" ? "unlocked" : "locked");
+		return prog === "completed";
+	}).length;
+	const progressPct = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
+	const passedQuizzes = [...bestAttemptMap.values()].filter((a) => a.passed).length;
+	const totalQuizzes = quizIds.length;
+
 	return (
 		<div className="flex flex-col min-h-screen" style={{ backgroundColor: "var(--brand-chalk)" }}>
 			{/* Header */}
@@ -143,6 +156,74 @@ export default async function ExperiencePage({
 				)}
 			</header>
 
+			{/* Progress + Stats */}
+			<div className="border-b px-6 py-5" style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}>
+				<div className="max-w-3xl mx-auto">
+					<div className="flex items-center justify-between mb-2">
+						<span className="text-xs font-medium" style={{ color: "var(--brand-ink-60)" }}>
+							Course Progress
+						</span>
+						<span
+							className="text-xs font-mono font-medium"
+							style={{ color: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)" }}
+						>
+							{completedModules}/{totalModules} modules
+						</span>
+					</div>
+					<div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--brand-chalk)" }}>
+						<div
+							className="h-full rounded-full transition-all duration-500"
+							style={{
+								width: `${progressPct}%`,
+								backgroundColor: progressPct === 100 ? "var(--brand-verified-green)" : "var(--brand-seal-gold)",
+							}}
+						/>
+					</div>
+
+					<div className="grid grid-cols-3 gap-4 mt-5">
+						<div className="flex items-center gap-2.5">
+							<div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)" }}>
+								<BookOpen size={16} style={{ color: "var(--brand-seal-gold)" }} />
+							</div>
+							<div>
+								<div className="text-lg font-bold" style={{ color: "var(--brand-ink)", fontFamily: "var(--font-ibm-plex-mono)" }}>
+									{completedModules}
+								</div>
+								<div className="text-[10px] font-medium" style={{ color: "var(--brand-ink-60)" }}>
+									Modules done
+								</div>
+							</div>
+						</div>
+						<div className="flex items-center gap-2.5">
+							<div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)" }}>
+								<HelpCircle size={16} style={{ color: "var(--brand-seal-gold)" }} />
+							</div>
+							<div>
+								<div className="text-lg font-bold" style={{ color: "var(--brand-ink)", fontFamily: "var(--font-ibm-plex-mono)" }}>
+									{passedQuizzes}/{totalQuizzes}
+								</div>
+								<div className="text-[10px] font-medium" style={{ color: "var(--brand-ink-60)" }}>
+									Quizzes passed
+								</div>
+							</div>
+						</div>
+						<div className="flex items-center gap-2.5">
+							<div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(199, 154, 59, 0.1)" }}>
+								<BarChart3 size={16} style={{ color: "var(--brand-seal-gold)" }} />
+							</div>
+							<div>
+								<div className="text-lg font-bold" style={{ color: "var(--brand-ink)", fontFamily: "var(--font-ibm-plex-mono)" }}>
+									{progressPct}%
+								</div>
+								<div className="text-[10px] font-medium" style={{ color: "var(--brand-ink-60)" }}>
+									Complete
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			{/* Modules */}
 			<main className="flex-1 p-6 max-w-3xl mx-auto w-full">
 				<div className="flex items-center gap-3 mb-6">
@@ -156,7 +237,7 @@ export default async function ExperiencePage({
 						className="text-xs font-mono px-2 py-0.5 rounded-full"
 						style={{ backgroundColor: "var(--brand-chalk)", color: "var(--brand-ink-60)" }}
 					>
-						{modules.rows.length} module{modules.rows.length !== 1 ? "s" : ""}
+						{totalModules} module{totalModules !== 1 ? "s" : ""}
 					</span>
 				</div>
 
@@ -168,6 +249,7 @@ export default async function ExperiencePage({
 						const qCount = quiz ? Number(qCountMap.get(quiz.id) || 0) : 0;
 						const bestAttempt = quiz ? bestAttemptMap.get(quiz.id) : undefined;
 						const attemptCount = quiz ? attemptCountMap.get(quiz.id) || 0 : 0;
+						const isLocked = progress === "locked";
 
 						return (
 							<div
@@ -176,26 +258,26 @@ export default async function ExperiencePage({
 								style={{
 									backgroundColor: "white",
 									borderColor: "var(--brand-ink-30)",
-									opacity: progress === "locked" ? 0.6 : 1,
+									opacity: isLocked ? 0.5 : 1,
 								}}
 							>
 								<div className="p-5">
 									<div className="flex items-start gap-3">
 										<div
-											className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+											className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
 											style={{
 												backgroundColor:
 													progress === "completed"
 														? "var(--brand-verified-green)"
-														: progress === "unlocked"
-															? "var(--brand-seal-gold)"
-															: "var(--brand-ink-30)",
+														: isLocked
+															? "var(--brand-ink-30)"
+															: "var(--brand-seal-gold)",
 											}}
 										>
 											{progress === "completed" ? (
-												<CheckCircle2 size={16} className="text-white" />
+												<CheckCircle2 size={18} className="text-white" />
 											) : (
-												<UnlockIcon size={16} className="text-white" />
+												<UnlockIcon size={18} className="text-white" />
 											)}
 										</div>
 										<div className="flex-1 min-w-0">
@@ -212,7 +294,7 @@ export default async function ExperiencePage({
 												>
 													{mod.title}
 												</h3>
-												{mod.unlock_rule === "previous_quiz_passed" && (
+												{mod.unlock_rule === "previous_quiz_passed" && !isLocked && (
 													<span
 														className="text-[10px] px-1.5 py-0.5 rounded font-medium"
 														style={{
@@ -245,6 +327,17 @@ export default async function ExperiencePage({
 														in progress
 													</span>
 												)}
+												{isLocked && (
+													<span
+														className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+														style={{
+															backgroundColor: "var(--brand-chalk)",
+															color: "var(--brand-ink-60)",
+														}}
+													>
+														locked
+													</span>
+												)}
 											</div>
 											{mod.unlock_rule === "date" && mod.unlock_date && (
 												<p className="text-xs mt-1" style={{ color: "var(--brand-ink-60)" }}>
@@ -255,7 +348,7 @@ export default async function ExperiencePage({
 									</div>
 								</div>
 
-								{quiz && (
+								{quiz && !isLocked && (
 									<div
 										className="border-t px-5 py-3"
 										style={{ borderColor: "var(--brand-ink-30)" }}
@@ -266,6 +359,19 @@ export default async function ExperiencePage({
 											questionCount={qCount}
 											bestAttempt={bestAttempt || null}
 											attemptCount={attemptCount}
+										/>
+									</div>
+								)}
+
+								{!quiz && !isLocked && progress !== "completed" && (
+									<div
+										className="border-t px-5 py-3 flex items-center justify-end"
+										style={{ borderColor: "var(--brand-ink-30)" }}
+									>
+										<ModuleCompleteButton
+											courseId={course.id}
+											moduleId={mod.id}
+											moduleOrderIndex={mod.order_index}
 										/>
 									</div>
 								)}
