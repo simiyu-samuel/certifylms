@@ -63,7 +63,7 @@ export async function POST(
 
 	await query(
 		"UPDATE attempts SET answers = $1, score_pct = $2, passed = $3, submitted_at = NOW() WHERE id = $4",
-		[JSON.stringify(graded), scorePct, passed, attemptId],
+		[graded, scorePct, passed, attemptId],
 	);
 
 	if (passed) {

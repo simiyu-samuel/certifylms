@@ -81,7 +81,7 @@ export default function QuizReviewPage({
 		);
 	}
 
-	const graded = JSON.parse(attempt.answers) as Array<{
+	const graded = (typeof attempt.answers === "string" ? JSON.parse(attempt.answers) : attempt.answers) as Array<{
 		questionId: string;
 		answer: string | string[];
 		correct: boolean;
