@@ -2,6 +2,18 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/toast";
+import {
+	ArrowLeft,
+	Settings,
+	FileQuestion,
+	Save,
+	Loader2,
+	HelpCircle,
+	Shuffle,
+	Infinity,
+	Gavel,
+} from "lucide-react";
 
 type Quiz = {
 	id: string;
@@ -20,7 +32,9 @@ export default function QuizDetailPage() {
 		quizId: string;
 	}>();
 	const router = useRouter();
+	const { toast } = useToast();
 	const [quiz, setQuiz] = useState<Quiz | null>(null);
+	const [questionCount, setQuestionCount] = useState(0);
 	const [editing, setEditing] = useState(false);
 	const [title, setTitle] = useState("");
 	const [passThreshold, setPassThreshold] = useState("80");
@@ -29,15 +43,17 @@ export default function QuizDetailPage() {
 	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
-		fetch(`/api/quizzes/${quizId}`)
-			.then((r) => r.json())
-			.then((data) => {
-				setQuiz(data);
-				setTitle(data.title || "");
-				setPassThreshold(String(data.pass_threshold_pct ?? 80));
-				setMaxAttempts(data.max_attempts ? String(data.max_attempts) : "");
-				setRandomize(data.randomize_order ?? false);
-			});
+		Promise.all([
+			fetch(`/api/quizzes/${quizId}`).then((r) => r.json()),
+			fetch(`/api/quizzes/${quizId}/questions`).then((r) => r.json()),
+		]).then(([quizData, questions]) => {
+			setQuiz(quizData);
+			setQuestionCount(questions.length);
+			setTitle(quizData.title || "");
+			setPassThreshold(String(quizData.pass_threshold_pct ?? 80));
+			setMaxAttempts(quizData.max_attempts ? String(quizData.max_attempts) : "");
+			setRandomize(quizData.randomize_order ?? false);
+		});
 	}, [quizId]);
 
 	async function handleSave() {
@@ -57,35 +73,54 @@ export default function QuizDetailPage() {
 			const updated = await res.json();
 			setQuiz(updated);
 			setEditing(false);
+			toast("Quiz settings saved", "success");
 		} else {
-			alert("Failed to update quiz");
+			const data = await res.json();
+			toast(data.error || "Failed to save settings", "error");
 		}
 		setSaving(false);
 	}
 
-	if (!quiz) return <div className="p-6" />;
+	if (!quiz) {
+		return (
+			<div className="p-8 flex items-center gap-2" style={{ color: "var(--brand-ink-60)" }}>
+				<Loader2 size={16} className="animate-spin" />
+				<span className="text-sm">Loading...</span>
+			</div>
+		);
+	}
 
 	return (
-		<div className="flex flex-col p-6 gap-6 max-w-2xl">
-			<div className="flex items-center justify-between">
+		<div className="flex flex-col p-8 gap-8 max-w-4xl">
+			<div className="flex items-start justify-between">
 				<div>
-					<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
-						Quiz
-					</span>
+					<button
+						type="button"
+						onClick={() => router.back()}
+						className="inline-flex items-center gap-1 text-sm mb-2"
+						style={{ color: "var(--brand-ink-60)" }}
+					>
+						<ArrowLeft size={14} />
+						Back to Course
+					</button>
 					<h1
-						className="text-2xl font-semibold"
+						className="text-3xl font-semibold"
 						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
 					>
 						{quiz.title}
 					</h1>
+					<p className="text-sm mt-1" style={{ color: "var(--brand-ink-60)" }}>
+						{questionCount} question{questionCount !== 1 ? "s" : ""}
+					</p>
 				</div>
 				<div className="flex gap-2">
 					<button
 						type="button"
 						onClick={() => setEditing(!editing)}
-						className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+						className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50"
 						style={{ borderColor: "var(--brand-ink-30)", color: "var(--brand-ink-60)" }}
 					>
+						<Settings size={14} />
 						{editing ? "Cancel" : "Settings"}
 					</button>
 					<button
@@ -95,9 +130,10 @@ export default function QuizDetailPage() {
 								`/dashboard/${companyId}/courses/${courseId}/modules/${moduleId}/quiz/${quizId}/builder`,
 							)
 						}
-						className="px-3 py-1.5 rounded-lg text-xs font-medium text-white"
+						className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
 						style={{ backgroundColor: "var(--brand-seal-gold)" }}
 					>
+						<FileQuestion size={14} />
 						Edit Questions
 					</button>
 				</div>
@@ -105,22 +141,28 @@ export default function QuizDetailPage() {
 
 			{editing ? (
 				<div
-					className="rounded-xl p-6 border flex flex-col gap-4"
-					style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
+					className="rounded-xl p-6 border flex flex-col gap-5"
+					style={{
+						backgroundColor: "white",
+						borderColor: "var(--brand-ink-30)",
+					}}
 				>
-					<h2 className="text-lg font-semibold" style={{ color: "var(--brand-ink)" }}>
+					<h2
+						className="text-lg font-semibold"
+						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
+					>
 						Quiz Settings
 					</h2>
 
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium" style={{ color: "var(--brand-ink)" }}>
-							Title
+						<label className="text-sm font-semibold" style={{ color: "var(--brand-ink)" }}>
+							Quiz Title
 						</label>
 						<input
 							type="text"
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
-							className="rounded-lg px-3 py-2 border text-sm"
+							className="rounded-lg px-4 py-2.5 border text-sm outline-none focus:ring-2 transition-shadow"
 							style={{
 								borderColor: "var(--brand-ink-30)",
 								backgroundColor: "white",
@@ -129,42 +171,44 @@ export default function QuizDetailPage() {
 						/>
 					</div>
 
-					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium" style={{ color: "var(--brand-ink)" }}>
-							Pass Threshold (%)
-						</label>
-						<input
-							type="number"
-							value={passThreshold}
-							onChange={(e) => setPassThreshold(e.target.value)}
-							min={0}
-							max={100}
-							className="rounded-lg px-3 py-2 border text-sm max-w-[120px]"
-							style={{
-								borderColor: "var(--brand-ink-30)",
-								backgroundColor: "white",
-								color: "var(--brand-ink)",
-							}}
-						/>
-					</div>
+					<div className="grid grid-cols-2 gap-4">
+						<div className="flex flex-col gap-1.5">
+							<label className="text-sm font-semibold" style={{ color: "var(--brand-ink)" }}>
+								Pass Threshold (%)
+							</label>
+							<input
+								type="number"
+								value={passThreshold}
+								onChange={(e) => setPassThreshold(e.target.value)}
+								min={0}
+								max={100}
+								className="rounded-lg px-4 py-2.5 border text-sm outline-none focus:ring-2 transition-shadow"
+								style={{
+									borderColor: "var(--brand-ink-30)",
+									backgroundColor: "white",
+									color: "var(--brand-ink)",
+								}}
+							/>
+						</div>
 
-					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium" style={{ color: "var(--brand-ink)" }}>
-							Max Attempts
-						</label>
-						<input
-							type="number"
-							value={maxAttempts}
-							onChange={(e) => setMaxAttempts(e.target.value)}
-							min={1}
-							className="rounded-lg px-3 py-2 border text-sm max-w-[120px]"
-							style={{
-								borderColor: "var(--brand-ink-30)",
-								backgroundColor: "white",
-								color: "var(--brand-ink)",
-							}}
-							placeholder="Unlimited"
-						/>
+						<div className="flex flex-col gap-1.5">
+							<label className="text-sm font-semibold" style={{ color: "var(--brand-ink)" }}>
+								Max Attempts
+							</label>
+							<input
+								type="number"
+								value={maxAttempts}
+								onChange={(e) => setMaxAttempts(e.target.value)}
+								min={1}
+								className="rounded-lg px-4 py-2.5 border text-sm outline-none focus:ring-2 transition-shadow"
+								style={{
+									borderColor: "var(--brand-ink-30)",
+									backgroundColor: "white",
+									color: "var(--brand-ink)",
+								}}
+								placeholder="Unlimited"
+							/>
+						</div>
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -173,6 +217,7 @@ export default function QuizDetailPage() {
 							id="randomize"
 							checked={randomize}
 							onChange={(e) => setRandomize(e.target.checked)}
+							className="w-4 h-4 rounded"
 						/>
 						<label htmlFor="randomize" className="text-sm" style={{ color: "var(--brand-ink)" }}>
 							Randomize question order per attempt
@@ -183,40 +228,92 @@ export default function QuizDetailPage() {
 						type="button"
 						onClick={handleSave}
 						disabled={saving}
-						className="px-4 py-2 rounded-lg text-sm font-medium text-white self-start disabled:opacity-50"
+						className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white self-start transition-opacity hover:opacity-90 disabled:opacity-50"
 						style={{ backgroundColor: "var(--brand-seal-gold)" }}
 					>
+						{saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
 						{saving ? "Saving..." : "Save Settings"}
 					</button>
 				</div>
 			) : (
 				<div
 					className="rounded-xl p-6 border"
-					style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)" }}
+					style={{
+						backgroundColor: "white",
+						borderColor: "var(--brand-ink-30)",
+					}}
 				>
-					<div className="grid grid-cols-2 gap-4 text-sm">
-						<div>
-							<span style={{ color: "var(--brand-ink-60)" }}>Pass Threshold</span>
-							<p className="font-semibold mt-0.5" style={{ color: "var(--brand-ink)" }}>
+					<h2
+						className="text-lg font-semibold mb-4"
+						style={{ fontFamily: "var(--font-fraunces)", color: "var(--brand-ink)" }}
+					>
+						Quiz Summary
+					</h2>
+					<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+						<div
+							className="p-4 rounded-lg text-center"
+							style={{ backgroundColor: "var(--brand-chalk)" }}
+						>
+							<FileQuestion
+								size={20}
+								className="mx-auto mb-2"
+								style={{ color: "var(--brand-seal-gold)" }}
+							/>
+							<p className="text-2xl font-bold" style={{ fontFamily: "var(--font-ibm-plex-mono)", color: "var(--brand-ink)" }}>
+								{questionCount}
+							</p>
+							<p className="text-xs mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
+								Questions
+							</p>
+						</div>
+						<div
+							className="p-4 rounded-lg text-center"
+							style={{ backgroundColor: "var(--brand-chalk)" }}
+						>
+							<Gavel
+								size={20}
+								className="mx-auto mb-2"
+								style={{ color: "var(--brand-verified-green)" }}
+							/>
+							<p className="text-2xl font-bold" style={{ fontFamily: "var(--font-ibm-plex-mono)", color: "var(--brand-ink)" }}>
 								{quiz.pass_threshold_pct}%
 							</p>
-						</div>
-						<div>
-							<span style={{ color: "var(--brand-ink-60)" }}>Max Attempts</span>
-							<p className="font-semibold mt-0.5" style={{ color: "var(--brand-ink)" }}>
-								{quiz.max_attempts ?? "Unlimited"}
+							<p className="text-xs mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
+								Pass Threshold
 							</p>
 						</div>
-						<div>
-							<span style={{ color: "var(--brand-ink-60)" }}>Randomized Order</span>
-							<p className="font-semibold mt-0.5" style={{ color: "var(--brand-ink)" }}>
-								{quiz.randomize_order ? "Yes" : "No"}
+						<div
+							className="p-4 rounded-lg text-center"
+							style={{ backgroundColor: "var(--brand-chalk)" }}
+						>
+							{quiz.max_attempts ? (
+								<>
+									<p className="text-2xl font-bold" style={{ fontFamily: "var(--font-ibm-plex-mono)", color: "var(--brand-ink)" }}>
+										{quiz.max_attempts}
+									</p>
+								</>
+							) : (
+								<Infinity
+									size={24}
+									className="mx-auto mb-2"
+									style={{ color: "var(--brand-ink-60)" }}
+								/>
+							)}
+							<p className="text-xs mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
+								Max Attempts
 							</p>
 						</div>
-						<div>
-							<span style={{ color: "var(--brand-ink-60)" }}>Time Limit</span>
-							<p className="font-semibold mt-0.5" style={{ color: "var(--brand-ink)" }}>
-								{quiz.time_limit_seconds ? `${quiz.time_limit_seconds}s` : "None"}
+						<div
+							className="p-4 rounded-lg text-center"
+							style={{ backgroundColor: "var(--brand-chalk)" }}
+						>
+							<Shuffle
+								size={20}
+								className="mx-auto mb-2"
+								style={{ color: quiz.randomize_order ? "var(--brand-seal-gold)" : "var(--brand-ink-30)" }}
+							/>
+							<p className="text-xs mt-0.5" style={{ color: "var(--brand-ink-60)" }}>
+								{quiz.randomize_order ? "Randomized" : "Fixed order"}
 							</p>
 						</div>
 					</div>
