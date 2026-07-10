@@ -13,6 +13,7 @@ import {
 	BarChart3,
 	BookOpen,
 	ChevronRight,
+	ChevronDown,
 	ArrowRight,
 } from "lucide-react";
 import { ExperienceQuizCard } from "./quiz-card";
@@ -24,22 +25,25 @@ const unlockIcons = {
 	date: Lock,
 };
 
-async function getCourseForExperience(experienceId: string) {
+async function getCoursesForCompany(experienceId: string) {
 	const experience = await whopsdk.experiences.retrieve(experienceId);
 	const companyId = (experience as unknown as { company: { id: string } }).company.id;
 	const courses = await query(
-		"SELECT id, title, description, created_at FROM courses WHERE whop_company_id = $1 ORDER BY created_at DESC LIMIT 1",
+		"SELECT id, title, description, created_at FROM courses WHERE whop_company_id = $1 ORDER BY created_at DESC",
 		[companyId],
 	);
-	return { experience, companyId, course: courses.rows[0] || null };
+	return { experience, companyId, courses: courses.rows };
 }
 
 export default async function ExperiencePage({
 	params,
+	searchParams,
 }: {
 	params: Promise<{ experienceId: string }>;
+	searchParams: Promise<{ course?: string }>;
 }) {
 	const { experienceId } = await params;
+	const { course: courseParam } = await searchParams;
 	const { userId } = await whopsdk.verifyUserToken(await headers());
 	const [user, access] = await Promise.all([
 		whopsdk.users.retrieve(userId),
@@ -57,8 +61,12 @@ export default async function ExperiencePage({
 		);
 	}
 
-	const { course } = await getCourseForExperience(experienceId);
+	const { experience, companyId, courses } = await getCoursesForCompany(experienceId);
+	const companyName = (experience as unknown as { company: { title?: string } }).company.title || "Courses";
 	const displayName = user.name || `@${user.username}`;
+
+	const selectedCourseId = courseParam && courses.find((c: { id: string }) => c.id === courseParam) ? courseParam : courses[0]?.id;
+	const course = courses.find((c: { id: string }) => c.id === selectedCourseId) || courses[0];
 
 	if (!course) {
 		return (
@@ -151,9 +159,37 @@ export default async function ExperiencePage({
 					CertifyLMS
 				</span>
 				<span className="text-xs" style={{ color: "var(--brand-ink-30)" }}>/</span>
-				<span className="text-xs font-semibold truncate" style={{ color: "var(--brand-ink)" }}>
-					{course.title}
-				</span>
+				<div className="relative group">
+					<span
+						className="text-xs font-semibold truncate flex items-center gap-1 cursor-pointer"
+						style={{ color: "var(--brand-ink)" }}
+					>
+						{course.title}
+						{courses.length > 1 && <ChevronDown size={12} style={{ color: "var(--brand-ink-30)" }} />}
+					</span>
+					{courses.length > 1 && (
+						<div
+							className="absolute top-full left-0 mt-1 rounded-lg border shadow-lg overflow-hidden z-50 hidden group-hover:block"
+							style={{ backgroundColor: "white", borderColor: "var(--brand-ink-30)", minWidth: 180 }}
+						>
+							{courses.map((c: { id: string; title: string }) => (
+								<Link
+									key={c.id}
+									href={`/experiences/${experienceId}?course=${c.id}`}
+									className={`block px-3 py-2 text-xs transition-colors hover:bg-[var(--brand-chalk)] ${
+										c.id === course.id ? "font-semibold" : ""
+									}`}
+									style={{
+										color: c.id === course.id ? "var(--brand-seal-gold)" : "var(--brand-ink)",
+										backgroundColor: c.id === course.id ? "rgba(199,154,59,0.06)" : "transparent",
+									}}
+								>
+									{c.title}
+								</Link>
+							))}
+						</div>
+					)}
+				</div>
 				<div className="flex-1" />
 				<span className="text-xs" style={{ color: "var(--brand-ink-60)" }}>
 					{displayName}
